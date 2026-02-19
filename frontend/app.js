@@ -1,4 +1,4 @@
-const API_URL = 'https://super-fortnight-be.onrender.com/';
+const API_URL = 'https://super-fortnight-be.onrender.com/api';
 let currentUser = null;
 let feedbackSDK = null;
 let messengerWidget = null;
