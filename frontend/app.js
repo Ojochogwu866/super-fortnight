@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://super-fortnight-be.onrender.com/api';
 let currentUser = null;
 let feedbackSDK = null;
 let messengerWidget = null;
