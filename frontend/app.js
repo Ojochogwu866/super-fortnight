@@ -1,4 +1,4 @@
-const API_URL = 'https://super-fortnight-be.onrender.com/api';
+const API_URL = 'http://localhost:3000/api';
 let currentUser = null;
 let feedbackSDK = null;
 let messengerWidget = null;
@@ -151,13 +151,6 @@ async function initializeSDK() {
     });
 
     await feedbackSDK.init();
-
-    const feedbackWidget = feedbackSDK.createWidget('button', {
-      position: 'bottom-right',
-      theme: 'light',
-      feedbackUrl: urls.feedbackUrl,
-    });
-    feedbackWidget.mount();
 
     messengerWidget = feedbackSDK.createWidget('messenger', {
       position: 'bottom-left',
