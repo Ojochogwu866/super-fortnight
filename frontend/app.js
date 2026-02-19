@@ -8,7 +8,7 @@ const PRODUCT7_SUBDOMAIN = 'zed';
 
 function getProduct7BaseUrls() {
   const isDev = true;
-  const baseDomain = isDev ? 'staging.product7.io' : 'product7.io';
+  const baseDomain = isDev ? 'product7.io' : 'product7.io';
   const base = `https://${PRODUCT7_SUBDOMAIN}.${baseDomain}`;
 
   return {
