@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FreshHub</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <div class="logo">FreshHub</div>
+    <div class="nav-right">
+      <div id="userInfo" class="user-info" style="display: none;"></div>
+      <button id="authBtn" class="nav-btn" onclick="showAuthModal()">Sign In</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Fresh Fruits,<br>Delivered Daily</h1>
+    <p>
+      Premium organic produce sourced from sustainable farms. 
+      Each piece selected with care, delivered to your door within 24 hours.
+    </p>
+  </section>
+
+  <section class="products">
+    <div class="product">
+      <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=1200&q=80" 
+           alt="Organic Bananas" 
+           class="product-image">
+      <div class="product-content">
+        <div class="product-meta">
+          <h2 class="product-title">Organic Bananas</h2>
+          <span class="product-price">$3.99/lb</span>
+        </div>
+        <p class="product-desc">
+          Hand-picked from sustainable tropical farms. Perfectly ripe, 
+          naturally sweet, and rich in essential nutrients. Each banana 
+          selected for optimal flavor and texture.
+        </p>
+        <div class="product-details">
+          <div class="detail">
+            <div class="detail-label">Origin</div>
+            <div class="detail-value">Organic</div>
+          </div>
+          <div class="detail">
+            <div class="detail-label">Delivery</div>
+            <div class="detail-value">24 Hours</div>
+          </div>
+          <div class="detail">
+            <div class="detail-label">Quality</div>
+            <div class="detail-value">Premium</div>
+          </div>
+        </div>
+        <button class="buy-btn" onclick="addToCart('Organic Bananas')">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product">
+      <img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=1200&q=80" 
+           alt="Crisp Apples" 
+           class="product-image">
+      <div class="product-content">
+        <div class="product-meta">
+          <h2 class="product-title">Crisp Apples</h2>
+          <span class="product-price">$4.99/lb</span>
+        </div>
+        <p class="product-desc">
+          Juicy, crunchy apples from premium orchards. Every bite delivers 
+          perfect balance between sweetness and tartness. Locally sourced, 
+          pesticide-free, and picked at peak ripeness.
+        </p>
+        <div class="product-details">
+          <div class="detail">
+            <div class="detail-label">Origin</div>
+            <div class="detail-value">Local</div>
+          </div>
+          <div class="detail">
+            <div class="detail-label">Pesticides</div>
+            <div class="detail-value">None</div>
+          </div>
+          <div class="detail">
+            <div class="detail-label">Freshness</div>
+            <div class="detail-value">Daily</div>
+          </div>
+        </div>
+        <button class="buy-btn" onclick="addToCart('Crisp Apples')">Add to Cart</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© 2024 FreshHub · Fresh · Organic · Delivered</p>
+  </footer>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <h2 class="modal-title" id="modalTitle">Sign In</h2>
+      <form id="authForm">
+        <div class="form-group" id="nameGroup" style="display: none;">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-input" id="name" placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="password" placeholder="••••••••" required>
+        </div>
+        <div id="errorMsg" class="error-msg"></div>
+        <button type="submit" class="form-btn" id="submitBtn">Sign In</button>
+        <div class="form-switch">
+          <span id="switchText">Don't have an account?</span>
+          <a id="switchLink" onclick="toggleAuthMode()">Sign Up</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@product7/feedback-sdk@1/dist/feedback-sdk.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
