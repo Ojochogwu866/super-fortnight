@@ -151,11 +151,15 @@ async function checkAndShowActiveSurvey() {
   if (!feedbackSDK || !currentUser) return;
 
   try {
+    // Keep runtime user context synced before survey fetch/submit paths.
+    feedbackSDK.setUserContext(currentUser);
+
     const surveys = await feedbackSDK.getActiveSurveys({
       includeEligibility: true
     });
 
     if (!Array.isArray(surveys) || surveys.length === 0) {
+      destroySurveyWidget();
       return;
     }
 
@@ -163,15 +167,9 @@ async function checkAndShowActiveSurvey() {
 
     destroySurveyWidget();
 
-    surveyWidget = feedbackSDK.showSurvey({
-      surveyId: survey.id,
-      surveyType: survey.type || 'nps',
-      title: survey.title,
-      description: survey.description,
-      lowLabel: survey.low_label,
-      highLabel: survey.high_label,
-      customQuestions: survey.questions || [],
-      position: survey.position || 'center',
+    // Let SDK normalize backend response shape (pages, eligibility, etc.)
+    surveyWidget = await feedbackSDK.showSurveyById(survey.id, {
+      position: 'center',
       respondentId: currentUser.user_id || currentUser.id || null,
       email: currentUser.email || null,
       onSubmit: () => {
@@ -204,7 +202,7 @@ async function initializeSDK() {
 
     await feedbackSDK.init();
 
-    // safety: keep runtime user context synced
+    // Keep runtime user context synced
     feedbackSDK.setUserContext(currentUser);
 
     feedbackSDK.on('survey:suppressed', (payload) => {
