@@ -2,6 +2,7 @@ const API_URL = 'https://super-fortnight-be.onrender.com/api';
 let currentUser = null;
 let feedbackSDK = null;
 let messengerWidget = null;
+let surveyWidget = null;
 let isLoginMode = true;
 
 const PRODUCT7_SUBDOMAIN = 'zed';
@@ -60,7 +61,7 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
 
   try {
     const endpoint = isLoginMode ? '/login' : '/register';
-    const body = isLoginMode 
+    const body = isLoginMode
       ? { email, password }
       : { email, password, name };
 
@@ -79,11 +80,10 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
 
     localStorage.setItem('authToken', data.token);
     currentUser = data.userContext;
-    
+
     updateUI();
     hideAuthModal();
     await initializeSDK();
-    
   } catch (error) {
     errorMsg.textContent = 'Connection failed. Make sure backend is running on localhost:3000';
   }
@@ -98,18 +98,27 @@ function updateUI() {
   }
 }
 
+function destroySurveyWidget() {
+  if (surveyWidget) {
+    surveyWidget.destroy();
+    surveyWidget = null;
+  }
+}
+
 function logout() {
   localStorage.removeItem('authToken');
   currentUser = null;
   document.getElementById('userInfo').style.display = 'none';
   document.getElementById('authBtn').textContent = 'Sign In';
   document.getElementById('authBtn').onclick = showAuthModal;
-  
+
+  destroySurveyWidget();
+
   if (messengerWidget) {
     messengerWidget.destroy();
     messengerWidget = null;
   }
-  
+
   if (feedbackSDK) {
     feedbackSDK.destroy();
     feedbackSDK = null;
@@ -138,6 +147,49 @@ async function checkAuth() {
   }
 }
 
+async function checkAndShowActiveSurvey() {
+  if (!feedbackSDK || !currentUser) return;
+
+  try {
+    const surveys = await feedbackSDK.getActiveSurveys({
+      includeEligibility: true
+    });
+
+    if (!Array.isArray(surveys) || surveys.length === 0) {
+      return;
+    }
+
+    const survey = surveys[0];
+
+    destroySurveyWidget();
+
+    surveyWidget = feedbackSDK.showSurvey({
+      surveyId: survey.id,
+      surveyType: survey.type || 'nps',
+      title: survey.title,
+      description: survey.description,
+      lowLabel: survey.low_label,
+      highLabel: survey.high_label,
+      customQuestions: survey.questions || [],
+      position: survey.position || 'center',
+      respondentId: currentUser.user_id || currentUser.id || null,
+      email: currentUser.email || null,
+      onSubmit: () => {
+        destroySurveyWidget();
+      },
+      onDismiss: () => {
+        destroySurveyWidget();
+      }
+    });
+
+    if (!surveyWidget) {
+      console.log('Survey suppressed by eligibility');
+    }
+  } catch (error) {
+    console.error('Failed to fetch/show active surveys:', error);
+  }
+}
+
 async function initializeSDK() {
   if (!currentUser || feedbackSDK) return;
 
@@ -152,6 +204,13 @@ async function initializeSDK() {
 
     await feedbackSDK.init();
 
+    // safety: keep runtime user context synced
+    feedbackSDK.setUserContext(currentUser);
+
+    feedbackSDK.on('survey:suppressed', (payload) => {
+      console.log('Survey suppressed:', payload);
+    });
+
     messengerWidget = feedbackSDK.createWidget('messenger', {
       position: 'bottom-left',
       theme: 'light',
@@ -165,6 +224,8 @@ async function initializeSDK() {
       roadmapUrl: urls.roadmapUrl,
     });
     messengerWidget.mount();
+
+    await checkAndShowActiveSurvey();
 
     console.log('Product7 SDK initialized with user:', currentUser.name);
   } catch (error) {
