@@ -1,3 +1,10 @@
+(function loadSDK() {
+  const script = document.createElement('script');
+  script.src = `https://product7.io/feedback-sdk.js?t=${Date.now()}`;
+  script.onload = () => checkAuth();
+  document.head.appendChild(script);
+})();
+
 const API_URL = 'https://super-fortnight-be.onrender.com/api';
 let currentUser = null;
 let feedbackSDK = null;
@@ -8,8 +15,7 @@ let isLoginMode = true;
 const PRODUCT7_SUBDOMAIN = 'zed';
 
 function getProduct7BaseUrls() {
-  const isDev = true;
-  const baseDomain = isDev ? 'product7.io' : 'product7.io';
+  const baseDomain = 'product7.io';
   const base = `https://${PRODUCT7_SUBDOMAIN}.${baseDomain}`;
 
   return {
@@ -68,7 +74,7 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
     const response = await fetch(API_URL + endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();
@@ -85,7 +91,7 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
     hideAuthModal();
     await initializeSDK();
   } catch (error) {
-    errorMsg.textContent = 'Connection failed. Make sure backend is running on localhost:3000';
+    errorMsg.textContent = 'Connection failed. Make sure backend is running.';
   }
 });
 
@@ -131,7 +137,7 @@ async function checkAuth() {
 
   try {
     const response = await fetch(API_URL + '/me', {
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (response.ok) {
@@ -151,11 +157,10 @@ async function checkAndShowActiveSurvey() {
   if (!feedbackSDK || !currentUser) return;
 
   try {
-    // Keep runtime user context synced before survey fetch/submit paths.
     feedbackSDK.setUserContext(currentUser);
 
     const surveys = await feedbackSDK.getActiveSurveys({
-      includeEligibility: true
+      includeEligibility: true,
     });
 
     if (!Array.isArray(surveys) || surveys.length === 0) {
@@ -164,20 +169,14 @@ async function checkAndShowActiveSurvey() {
     }
 
     const survey = surveys[0];
-
     destroySurveyWidget();
 
-    // Let SDK normalize backend response shape (pages, eligibility, etc.)
     surveyWidget = await feedbackSDK.showSurveyById(survey.id, {
       position: 'center',
       respondentId: currentUser.user_id || currentUser.id || null,
       email: currentUser.email || null,
-      onSubmit: () => {
-        destroySurveyWidget();
-      },
-      onDismiss: () => {
-        destroySurveyWidget();
-      }
+      onSubmit: () => destroySurveyWidget(),
+      onDismiss: () => destroySurveyWidget(),
     });
 
     if (!surveyWidget) {
@@ -197,12 +196,11 @@ async function initializeSDK() {
     feedbackSDK = FeedbackSDK.create({
       workspace: 'zed',
       boardId: 'zed',
-      userContext: currentUser
+      userContext: currentUser,
     });
 
     await feedbackSDK.init();
 
-    // Keep runtime user context synced
     feedbackSDK.setUserContext(currentUser);
 
     feedbackSDK.on('survey:suppressed', (payload) => {
@@ -245,5 +243,3 @@ document.getElementById('authModal').addEventListener('click', (e) => {
     hideAuthModal();
   }
 });
-
-checkAuth();
